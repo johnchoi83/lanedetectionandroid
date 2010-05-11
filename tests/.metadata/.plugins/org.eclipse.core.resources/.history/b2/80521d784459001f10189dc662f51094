@@ -1,0 +1,19 @@
+package org.siprop.opencv;
+
+import android.app.Activity;
+import android.os.Bundle;
+import android.widget.TextView;
+
+public class TestJniCall extends Activity {
+    /** Called when the activity is first created. */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+    	
+    	OpenCV openCV;
+    	
+        super.onCreate(savedInstanceState);
+        TextView tv = new TextView(this);
+        tv.setText(openCV.testString("Hello OPENCV"));
+        setContentView(tv);
+    }
+}
