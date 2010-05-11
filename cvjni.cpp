@@ -40,7 +40,7 @@ JNIEXPORT
 void
 JNICALL
 Java_org_siprop_opencv_OpenCV_convertPicture(JNIEnv* env,
-												  jobject thiz) {
+												  jobject thiz) {/*
 	IplImage* object = cvLoadImage( "C:\Users\BrianLaptop\Desktop\image001.jpg", CV_LOAD_IMAGE_UNCHANGED );
 	CvSize sz = cvSize( object->width, object->height );
 
@@ -51,7 +51,7 @@ Java_org_siprop_opencv_OpenCV_convertPicture(JNIEnv* env,
 		
 	}
 	
-	IplImage *gray = cvCreateImage( sz, IPL_DEPTH_8U, 1 );
+	IplImage *gray = cvCreateImage( sz, IPL_DEPTH_8U, 1 );*/
 }
 
 JNIEXPORT
