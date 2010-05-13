@@ -68,11 +68,11 @@ Java_org_siprop_opencv_OpenCV_convertPicture(JNIEnv* env,
 												  jobject thiz);
 
 JNIEXPORT
-jstring
+jboolean
 JNICALL
 Java_org_siprop_opencv_OpenCV_testString(JNIEnv* env,
 												  jobject thiz,
-												  jstring prompt);
+												  char* data,jint width,jint height);
 
 JNIEXPORT
 jboolean
