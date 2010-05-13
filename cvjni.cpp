@@ -55,6 +55,28 @@ Java_org_siprop_opencv_OpenCV_convertPicture(JNIEnv* env,
 }
 
 JNIEXPORT
+jboolean
+JNICALL
+Java_org_siprop_opencv_OpenCV_testString(JNIEnv* env,
+												  jobject thiz,
+												  char* data,jint width,jint height)
+{
+	LOGE("param width = %d, height = %d",width,height);
+	IplImage *srcImg;
+	CvSize size;
+	srcImg = cvCreateImageHeader(cvSize(width,height),IPL_DEPTH_8U,1);
+	cvSetData(srcImg,data,width);
+	LOGE("TEST 1");
+	size  = cvGetSize(srcImg);
+
+	
+	LOGE("Test 2");
+	cvSaveImage("/sdcard/out2.jpg",srcImg);
+	LOGE("TEST 3");
+	return true;
+}
+
+JNIEXPORT
 jstring
 JNICALL
 Java_org_siprop_opencv_OpenCV_testString(JNIEnv* env,

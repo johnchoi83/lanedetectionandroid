@@ -26,7 +26,7 @@ public class OpenCV {
         System.loadLibrary("opencv");
     }
    
-    public native String testString(String prompt);
+    public native boolean testString(byte[] data,int width,int height);
  
     public native byte[] findContours(int[] data, int w, int h);
  
