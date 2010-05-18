@@ -95,7 +95,7 @@ Java_org_siprop_opencv_OpenCV_saveImageCv(JNIEnv* env,
 JNIEXPORT
 jboolean
 JNICALL
-Java_org_siprop_opencv_OpenCV_testString(JNIEnv* env,
+Java_org_siprop_opencv_OpenCV_findLines(JNIEnv* env,
 							  jobject thiz,
 							  jintArray photo_data
 							,jint width,

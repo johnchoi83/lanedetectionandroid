@@ -5,6 +5,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Bitmap.CompressFormat;
 import android.hardware.Camera;
 import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.ShutterCallback;
@@ -35,9 +38,10 @@ public class TestJniCall extends Activity {
 		       int minutes = seconds / 60;
 		       seconds     = seconds % 60;
 		       
+		       
 		       preview.camera.takePicture(shutterCallback, rawCallback,jpegCallback);
 		     
-		       mHandler.postDelayed(this, 4 * 1000);
+		       mHandler.postDelayed(this, 20 * 1000);
 		   }
 		};
 
@@ -74,6 +78,26 @@ public class TestJniCall extends Activity {
 	PictureCallback rawCallback = new PictureCallback() {
 		public void onPictureTaken(byte[] data, Camera camera) {
 			Log.e(TAG, "onPictureTaken - raw");
+
+			if(data == null)
+				Log.e(TAG, "onPictureTaken - raw is null");
+			else
+				Log.e(TAG, "onPictureTaken - raw is not null");
+
+			/*if(data != null){
+				Bitmap bmp = BitmapFactory.decodeByteArray(data, 0, data.length);
+				 
+	        	OpenCV opencv = new OpenCV();
+	        	if(opencv.testString(bmToByteArray(bmp), preview.camera.getParameters().getPreviewSize().width, preview.camera.getParameters().getPreviewSize().height))
+	        		//opencv.saveImageCv( "/sdcard/odataut.jpg" , preview.camera.getParameters().getPreviewSize().width, preview.camera.getParameters().getPreviewSize().height))
+	        		Log.e(TAG, "TRUE");
+	        	else
+	        		Log.e(TAG, "FALSE");
+				
+				preview.camera.startPreview();
+				
+				Log.e(TAG, "onPictureTaken - wrote bytes: " + data.length);
+			}*/
 		}
 	};
 	
@@ -81,30 +105,34 @@ public class TestJniCall extends Activity {
 	/** Handles data for jpeg picture */
 	PictureCallback jpegCallback = new PictureCallback() {
 		public void onPictureTaken(byte[] data, Camera camera) {
-			FileOutputStream outStream = null;
+			Log.e(TAG, "onPictureTaken - jpeg");
+            OpenCV opencv = new OpenCV();
+			if(data == null)
+				Log.e(TAG, "onPictureTaken - jpeg is null");
+			else
+				Log.e(TAG, "onPictureTaken - jpeg is not null");
+			
+			//Create a Bitmap out of the data
+			Bitmap faceDetectBitmap =  BitmapFactory.decodeByteArray(data, 0, data.length);
+            int width = faceDetectBitmap.getWidth(),
+            height = faceDetectBitmap.getHeight();
+            
+            //Scale the bitmap down by 1/5 because the camera kept running out of memory when we allocated the int array below
+			faceDetectBitmap = Bitmap.createScaledBitmap(faceDetectBitmap, width/5, height/5, false);
+			if(faceDetectBitmap == null){
+				Log.e(TAG, "onPictureTaken - null bitmap");
+	            
+			}
+            width = faceDetectBitmap.getWidth();
+            height = faceDetectBitmap.getHeight();
+            
+            //FOR TESTING ONLY (write the file to the sdcard on the Java side
+            FileOutputStream outStream = null;
 			try {
-				// write to local sandbox file system
-				// outStream =
-				// CameraDemo.this.openFileOutput(String.format("%d.jpg",
-				// System.currentTimeMillis()), 0);
-				// Or write to sdcard
-				outStream = new FileOutputStream(String.format(
-						"/sdcard/%d.jpg", System.currentTimeMillis()));
-				outStream.write(data);
+				outStream = new FileOutputStream(String.format("/sdcard/out.jpg", System.currentTimeMillis()));
+				faceDetectBitmap.compress(CompressFormat.JPEG, 100, outStream);
+				//outStream.write(data);
 				outStream.close();
-				
-				int [] integers= new int[data.length];
-			    for (int k = 0; k < data.length; k++)
-			    	integers[k] = (int) data[k];
-			    
-            	OpenCV opencv = new OpenCV();
-            	if(opencv.testString(data, preview.camera.getParameters().getPreviewSize().width, preview.camera.getParameters().getPreviewSize().height))
-            		Log.e(TAG, "TRUE");
-            	else
-            		Log.e(TAG, "FALSE");
-				
-				preview.camera.startPreview();
-				
 				Log.e(TAG, "onPictureTaken - wrote bytes: " + data.length);
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
@@ -112,9 +140,21 @@ public class TestJniCall extends Activity {
 				e.printStackTrace();
 			} finally {
 			}
+			
+            Log.e(TAG, ""+width + " "+height);  
+            //Allocate the int array for the OpenCV side
+            int pixels[] = new int[width * height];
+            faceDetectBitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+            
+            //Call OpenCV passing int the int array of pixels
+            if (opencv.findLines(pixels, width, height))            		
+            	Log.e(TAG, "TRUE");
+        	else
+        		Log.e(TAG, "FALSE");
+			
 			Log.e(TAG, "onPictureTaken - jpeg");
+			preview.camera.startPreview();
 		}
 	
-	};
-
+	};	 
 }
