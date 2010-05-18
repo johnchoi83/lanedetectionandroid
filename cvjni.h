@@ -61,23 +61,11 @@ CvSize m_smallestFaceSize;
 extern "C" {
 #endif
 
-JNIEXPORT
-void
-JNICALL
-Java_org_siprop_opencv_OpenCV_convertPicture(JNIEnv* env,
-												  jobject thiz);
 
 JNIEXPORT
 jboolean
 JNICALL
-Java_org_siprop_opencv_OpenCV_testString(JNIEnv* env,
-												  jobject thiz,
-												  char* data,jint width,jint height);
-
-JNIEXPORT
-jboolean
-JNICALL
-Java_org_siprop_opencv_OpenCV_createSocketCapture(JNIEnv* env,
+Java_edu_ucla_cens_andwellness3_jni_OpenCV_createSocketCapture(JNIEnv* env,
 												  jobject thiz,
 												  jstring address_str,
 												  jstring port_str,
@@ -87,25 +75,52 @@ Java_org_siprop_opencv_OpenCV_createSocketCapture(JNIEnv* env,
 JNIEXPORT
 void
 JNICALL
-Java_org_siprop_opencv_OpenCV_releaseSocketCapture(JNIEnv* env,
+Java_edu_ucla_cens_andwellness3_jni_OpenCV_releaseSocketCapture(JNIEnv* env,
 												   jobject thiz);
+
+JNIEXPORT 
+JNICALL
+jboolean
+JNICALL
+Java_edu_ucla_cens_andwellness3_jni_OpenCV_grabSourceImageFromCapture(JNIEnv* env,
+														 jobject thiz);
 
 JNIEXPORT
 jboolean
 JNICALL
-Java_org_siprop_opencv_OpenCV_grabSourceImageFromCapture(JNIEnv* env,
-														 jobject thiz);
+Java_org_siprop_opencv_OpenCV_saveImageCv(JNIEnv* env,
+												  jobject thiz,
+												  jstring dataPath, jint width, jint height);
+																																															
+JNIEXPORT
+jboolean
+JNICALL
+Java_org_siprop_opencv_OpenCV_testString(JNIEnv* env,
+							  jobject thiz,
+							  jintArray photo_data
+							,jint width,
+							jint height);
+
+/*JNIEXPORT
+jstring
+JNICALL
+Java_edu_ucla_cens_andwellness3_jni_OpenCV_processImage(JNIEnv* env, jobject thiz,jbyteArray photo_data);*/
+
+JNIEXPORT 
+jboolean  
+JNICALL
+Java_edu_ucla_cens_andwellness3_jni_OpenCV_processImage(JNIEnv *env, jobject obj,char* fname_j,jint len, jint width,jfloat shldu, jfloat shldo);
+
 														
 JNIEXPORT
 jbooleanArray
 JNICALL
-Java_org_siprop_opencv_OpenCV_getSourceImage(JNIEnv* env,
-											 jobject thiz);
+Java_edu_ucla_cens_andwellness3_jni_OpenCV_getSourceImage(JNIEnv* env,jstring t);
 
 JNIEXPORT
 jboolean
 JNICALL
-Java_org_siprop_opencv_OpenCV_setSourceImage(JNIEnv* env,
+Java_edu_ucla_cens_andwellness3_jni_OpenCV_setSourceImage(JNIEnv* env,
 									    	 jobject thiz,
 											 jintArray photo_data,
 											 jint width,
@@ -114,7 +129,7 @@ Java_org_siprop_opencv_OpenCV_setSourceImage(JNIEnv* env,
 JNIEXPORT
 jbooleanArray
 JNICALL
-Java_org_siprop_opencv_OpenCV_findContours(JNIEnv* env,
+Java_edu_ucla_cens_andwellness3_jni_OpenCV_findContours(JNIEnv* env,
 										jobject thiz,
 										jint width,
 										jint height);
@@ -122,32 +137,33 @@ Java_org_siprop_opencv_OpenCV_findContours(JNIEnv* env,
 JNIEXPORT
 jboolean
 JNICALL
-Java_org_siprop_opencv_OpenCV_initFaceDetection(JNIEnv* env,
+Java_edu_ucla_cens_andwellness3_jni_OpenCV_initFaceDetection(JNIEnv* env,
 												jobject thiz,
 												jstring cascade_path_str);
 												
 JNIEXPORT
 void
 JNICALL
-Java_org_siprop_opencv_OpenCV_releaseFaceDetection(JNIEnv* env,
+Java_edu_ucla_cens_andwellness3_jni_OpenCV_releaseFaceDetection(JNIEnv* env,
 									       	  	   jobject thiz);
 
 JNIEXPORT
 jboolean
 JNICALL
-Java_org_siprop_opencv_OpenCV_highlightFaces(JNIEnv* env,
+Java_edu_ucla_cens_andwellness3_jni_OpenCV_highlightFaces(JNIEnv* env,
 											 jobject thiz);
 
 JNIEXPORT
 jobjectArray
 JNICALL
-Java_org_siprop_opencv_OpenCV_findAllFaces(JNIEnv* env,
+Java_edu_ucla_cens_andwellness3_jni_OpenCV_findAllFaces(JNIEnv* env,
 									       jobject thiz);
 									
-JNIEXPORT
+JNIEXPORT 
+JNICALL
 jobject
 JNICALL
-Java_org_siprop_opencv_OpenCV_findSingleFace(JNIEnv* env,
+Java_edu_ucla_cens_andwellness3_jni_OpenCV_findSingleFace(JNIEnv* env,
 											 jobject thiz);
 
 #ifdef __cplusplus
@@ -329,7 +345,8 @@ int get_int_by_JavaObj(JNIEnv* env, jobject java_obj, const char* field_name) {
 	jfieldID int_fid = env->GetFieldID(clazz, field_name, "I");
 	return env->GetIntField(java_obj, int_fid);
 
-}
+} 
+JNICALL
 
 
 float get_float_by_JavaObj(JNIEnv* env, jobject java_obj, const char* field_name) {

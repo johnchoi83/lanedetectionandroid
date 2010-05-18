@@ -14,7 +14,7 @@ subject to the following restrictions:
 */
 #include "cvjni.h"
 #include <time.h>
-
+#include <stdio.h>
 
 #define THRESHOLD	10
 #define THRESHOLD_MAX_VALUE	255
@@ -36,67 +36,12 @@ subject to the following restrictions:
 #define PAD_FACE_AREA (40)
 #define PAD_FACE_AREA_2 (PAD_FACE_AREA * 2)
 
-JNIEXPORT
-void
-JNICALL
-Java_org_siprop_opencv_OpenCV_convertPicture(JNIEnv* env,
-												  jobject thiz) {/*
-	IplImage* object = cvLoadImage( "C:\Users\BrianLaptop\Desktop\image001.jpg", CV_LOAD_IMAGE_UNCHANGED );
-	CvSize sz = cvSize( object->width, object->height );
-
-	if( !object  )
-    {
-        fprintf( stderr, "Can not load \n");
-        exit(-1);
-		
-	}
-	
-	IplImage *gray = cvCreateImage( sz, IPL_DEPTH_8U, 1 );*/
-}
-
-JNIEXPORT
-jboolean
-JNICALL
-Java_org_siprop_opencv_OpenCV_testString(JNIEnv* env,
-												  jobject thiz,
-												  char* data,jint width,jint height)
-{
-	LOGE("param width = %d, height = %d",width,height);
-	IplImage *srcImg;
-	CvSize size;
-	srcImg = cvCreateImageHeader(cvSize(width,height),IPL_DEPTH_8U,1);
-	cvSetData(srcImg,data,width);
-	LOGE("TEST 1");
-	size  = cvGetSize(srcImg);
-
-	
-	LOGE("Test 2");
-	cvSaveImage("/sdcard/out2.jpg",srcImg);
-	LOGE("TEST 3");
-	return true;
-}
-
-JNIEXPORT
-jstring
-JNICALL
-Java_org_siprop_opencv_OpenCV_testString(JNIEnv* env,
-												  jobject thiz,
-												  jstring prompt) {
-	char javaString[80];
-													  
-	const char *promptString = env->GetStringUTFChars(prompt, 0);
-
-	strcpy(javaString, promptString);
-	strcat(javaString, "MORE ADDED ONTO THE STRING");
-
-	return env->NewStringUTF(javaString);
-}
 
 // Initialize a socket capture to grab images from a socket connection.
 JNIEXPORT
 jboolean
 JNICALL
-Java_org_siprop_opencv_OpenCV_createSocketCapture(JNIEnv* env,
+Java_edu_ucla_cens_andwellness3_jni_OpenCV_createSocketCapture(JNIEnv* env,
 												  jobject thiz,
 												  jstring address_str,
 												  jstring port_str,
@@ -130,7 +75,7 @@ Java_org_siprop_opencv_OpenCV_createSocketCapture(JNIEnv* env,
 JNIEXPORT
 void
 JNICALL
-Java_org_siprop_opencv_OpenCV_releaseSocketCapture(JNIEnv* env,
+Java_edu_ucla_cens_andwellness3_jni_OpenCV_releaseSocketCapture(JNIEnv* env,
 												   jobject thiz) {
 	if (m_capture) {
 		cvReleaseCapture(&m_capture);
@@ -141,7 +86,7 @@ Java_org_siprop_opencv_OpenCV_releaseSocketCapture(JNIEnv* env,
 JNIEXPORT
 jboolean
 JNICALL
-Java_org_siprop_opencv_OpenCV_grabSourceImageFromCapture(JNIEnv* env,
+Java_edu_ucla_cens_andwellness3_jni_OpenCV_grabSourceImageFromCapture(JNIEnv* env,
 														 jobject thiz) {
 	if (m_capture == 0)
 	{
@@ -158,7 +103,7 @@ Java_org_siprop_opencv_OpenCV_grabSourceImageFromCapture(JNIEnv* env,
 	IplImage *frame = cvRetrieveFrame(m_capture);
 	if (frame == 0)
 	{
-		LOGE("Failed to retrieve frame from the capture.");
+		LOGE("FailedJNICALL to retrieve frame from the capture.");
 		return false;
 	}
 	
@@ -182,12 +127,272 @@ Java_org_siprop_opencv_OpenCV_grabSourceImageFromCapture(JNIEnv* env,
 	return true;
 }
 
+JNIEXPORT 
+jboolean 
+JNICALL
+
+Java_edu_ucla_cens_andwellness3_jni_OpenCV_processImage(JNIEnv *env, jobject obj, 
+char* fname_j,jint width, jint height, jfloat underExpThreshold, jfloat overExpThreshold)
+{ 
+//  LOGE("Blass");
+  LOGE("param width=%d,height=%d",width,height);
+  // Allocate memory for all images
+  IplImage *src_img;
+  IplImage *gray;
+  IplImage *red_img;
+  IplImage *green_img;
+  IplImage *blue_img;
+  CvSize size;
+
+  // Initialize historgrams
+  int hist_size = 256;
+  float range[] = {0,256};
+  float *ranges[] = {range};
+
+  CvHistogram* hist_red = cvCreateHist(1, &hist_size, CV_HIST_ARRAY, ranges, 1);
+  CvHistogram* hist_blue = cvCreateHist(1, &hist_size, CV_HIST_ARRAY, ranges, 1);
+  CvHistogram* hist_green = cvCreateHist(1, &hist_size, CV_HIST_ARRAY, ranges, 1);
+
+  float under_exp = 0;
+  float over_exp = 0;
+
+  src_img = cvCreateImageHeader( cvSize(width,height), IPL_DEPTH_8U, 3 );
+  cvSetData( src_img, fname_j, width * 3 );
+
+ //gray = cvCreateImage(cvSize(width,height),IPL_DEPTH_8U,1);
+  //cvCvtColor(src_img,gray,CV_RGB2GRAY);
+
+
+  //Get the native string from javaString
+  /*const char *fname = env->GetStringUTFChars(fname_j, 0);
+
+  
+
+  src_img = cvLoadImage("/sdcard/test1_s.bmp",1);
+  if(!src_img){
+    LOGE("Could not load image file: test1.jpg");
+  //  printf("Could not load image file: %s\n",fname);
+  //  exit(1);
+  }*/
+
+  LOGE("Blass");
+  size = cvGetSize(src_img);
+  LOGE("Blass0");
+  blue_img  = cvCreateImage( size, IPL_DEPTH_8U, 1 );
+  LOGE("BlassA");
+  green_img = cvCreateImage( size, IPL_DEPTH_8U, 1 );
+  LOGE("BlassB");
+  red_img   = cvCreateImage( size, IPL_DEPTH_8U, 1 );
+  LOGE("BlassC");
+  LOGE("width=%d,height=%d",size.width,size.height);
+    // select the maximum ROI in the image
+    // with the width and height divisible by 2
+  /*cvSetImageROI( src_img, cvRect( 0, 0, size.width, size.height ));
+  for( int c = 0; c < 3; c++ )
+  {
+        // extract the c-th color plane
+      cvSetImageCOI( src_img, c+1 );
+      
+	switch(c){
+	case 0:
+		cvCopy( src_img,blue_img , 0 );
+	break;
+	case 1:
+		cvCopy( src_img,green_img , 0 );
+	break;
+	case 2:
+		cvCopy( src_img,red_img , 0 );
+	break;
+	}
+  }*/
+cvCvtPixToPlane( src_img, blue_img, green_img, red_img, 0 );
+   LOGE("Blass1");
+
+//these methods construct bins of brightness (the number of bins used correspond to the 
+//width of each bin (ranges of colors shades assigned to a bin)
+//We use 256 bins
+  cvCalcHist( &red_img, hist_red, 0, NULL );
+  cvCalcHist( &blue_img, hist_blue, 0, NULL );
+  cvCalcHist( &green_img, hist_green, 0, NULL );
+  LOGE("Blass2");
+
+//THe lowest 10 bins correspond to the underexposure
+  for( int i = 0; i < 10; i++ )
+    {
+      under_exp += cvQueryHistValue_1D(hist_red,i);
+      under_exp += cvQueryHistValue_1D(hist_green,i);
+      under_exp += cvQueryHistValue_1D(hist_blue,i);
+    }
+//Essentially your dividing udnerexposure by the whole # of pixels to get ratio of underexposure
+//to whole image
+  under_exp = under_exp / (3 * size.width * size.height);
+  LOGE("Blass3");
+
+//The top 5 bins here correspond to overexposure (250 - 255) which are over exposure values
+  for( int i = hist_size-6; i < hist_size; i++ )
+    {
+      over_exp += cvQueryHistValue_1D(hist_red,i);
+      over_exp += cvQueryHistValue_1D(hist_green,i);
+      over_exp += cvQueryHistValue_1D(hist_blue,i);
+    }
+//Essentially your dividing udnerexposure by the whole # of pixels to get ratio of overexposure
+//to whole image
+  over_exp = over_exp / (3 * size.width * size.height);
+  LOGE("Blass4");
+
+  //cvReleaseImage(&src_img);
+  cvReleaseImage(&red_img );
+  cvReleaseImage(&green_img );
+  cvReleaseImage(&blue_img );
+
+  cvReleaseHist(&hist_red );
+  cvReleaseHist(&hist_green );
+  cvReleaseHist(&hist_blue );
+  LOGE("Blass5");
+
+  //env->ReleaseStringUTFChars(fname_j,fname);
+
+  //printf ("%f %f\n", under_exp, over_exp);
+  LOGE("Returning %f, %f", under_exp, over_exp);
+  return ((under_exp < underExpThreshold) && (over_exp < overExpThreshold));
+}
+
+// Given an integer array of image data, load an IplImage.
+// It is the responsibility of the caller to release the IplImage.
+IplImage* getIplImageFromIntArray(JNIEnv* env, jintArray array_data, 
+								  jint width, jint height) {
+	// Load Image
+	int *pixels = env->GetIntArrayElements(array_data, 0);
+	if (pixels == 0) {
+		LOGE("Error getting int array of pixels.");
+		return 0;
+	}
+	
+	IplImage *image = loadPixels(pixels, width, height);
+	env->ReleaseIntArrayElements(array_data, pixels, 0);
+	if(image == 0) {
+		LOGE("Error loading pixel array.");
+		return 0;
+	}
+	
+	return image;
+}
+
+/*
+JNIEXPORT
+jboolean
+JNICALL
+Java_edu_ucla_cens_andwellness3_jni_OpenCV_processImage(JNIEnv* env, jobject thiz,jstring photo_uri);
+{
+	bool ret = false;
+	unsigned char* result;	
+double 2
+	IplImage* img = cvCreateImageHeader(cvSize(width,height),8,bpp/8); //create the "shell"
+
+	jint len = env->GetArrayLength(photo_data); //this gives len = 400
+	result = (unsigned char *)malloc(len + 1);
+	if (result == 0) {
+		fatal_error("out of memory");
+		(*env)->DeleteLocalRef(env, pic);
+		return 0;
+	}
+
+	env->GetByteArrayRegion(photo_data, 0, len,(jbyte *)result);
+	cvSetData(photo_data,result,bpr);    //set the buffer
+
+	
+	free(result);
+	cvReleaseImage(&img);
+	ret = true;
+     return ret;
+}*/
+
+
+JNIEXPORT
+jboolean
+JNICALL
+Java_org_siprop_opencv_OpenCV_saveImageCv(JNIEnv* env,
+												  jobject thiz,
+												  jstring dataPath, jint width, jint height)
+{
+	const char *dataPathString = env->GetStringUTFChars(dataPath, 0);
+
+	LOGE("%s param width = %d, height = %d",dataPathString,width,height);
+	IplImage *srcImg = 0;
+
+	srcImg = cvLoadImage("/sdcard/out.jpg");
+
+	if(!srcImg)
+		return false;
+	
+	LOGE("Test 1");
+	cvSaveImage("/sdcard/out2.jpg",srcImg);
+	LOGE("TEST 2");
+	return true;
+}
+
+
+JNIEXPORT
+jboolean
+JNICALL
+Java_org_siprop_opencv_OpenCV_testString(JNIEnv* env,
+							jobject thiz,
+							jintArray photo_data,
+							jint width,
+							jint height)
+{
+	IplImage *sourceImage,
+	*grayImage;
+	LOGE("param width = %d, height = %d",width,height);
+	//Takes the int array and creates an IPlImage from the int array
+	sourceImage = getIplImageFromIntArray(env, photo_data, width, height);
+	if (sourceImage == 0) {
+		LOGE("Error source image could not be created.");
+		return false;
+	}
+	//Creates a grayscale version of the image
+	grayImage = cvCreateImage(cvGetSize(sourceImage), IPL_DEPTH_8U, 1);
+	cvCvtColor( sourceImage, grayImage, CV_BGR2GRAY );
+	LOGE("Test 1");
+	cvSaveImage("/sdcard/out2.jpg",sourceImage);
+	LOGE("Test 2");
+	cvSaveImage("/sdcard/out2Gray.jpg",grayImage);
+	LOGE("TEST 3");
+
+	//Deletes the images
+	cvReleaseImage( &grayImage );
+	cvReleaseImage( &sourceImage );
+
+	return true;
+}
+
+
+JNIEXPORT
+jstring
+JNICALL
+Java_edu_ucla_cens_andwellness3_jni_OpenCV_testStringOld(JNIEnv* env,jobject thiz, jstring prompt)
+{
+     char buf[128];
+     const char *str;
+     str = env->GetStringUTFChars( prompt, NULL);
+     if (str == NULL) {
+         return NULL; /* OutOfMemoryError already thrown */
+     }
+     strcat(buf, str);
+     strcat(buf," append");
+     env->ReleaseStringUTFChars(prompt, str);
+     /* We assume here that the user does not type more than
+      * 127 characters */
+
+     return env->NewStringUTF(buf);
+}
+
 // Generate and return a boolean array from the source image.
 // Return 0 if a failure occurs or if the source image is undefined.
 JNIEXPORT
 jbooleanArray
 JNICALL
-Java_org_siprop_opencv_OpenCV_getSourceImage(JNIEnv* env,
+Java_edu_ucla_cens_andwellness3_jni_OpenCV_getSourceImage(JNIEnv* env,
 									    	 jobject thiz)
 {
 	if (m_sourceImage == 0) {
@@ -218,32 +423,11 @@ Java_org_siprop_opencv_OpenCV_getSourceImage(JNIEnv* env,
 	return res_array;
 }
 
-// Given an integer array of image data, load an IplImage.
-// It is the responsibility of the caller to release the IplImage.
-IplImage* getIplImageFromIntArray(JNIEnv* env, jintArray array_data, 
-								  jint width, jint height) {
-	// Load Image
-	int *pixels = env->GetIntArrayElements(array_data, 0);
-	if (pixels == 0) {
-		LOGE("Error getting int array of pixels.");
-		return 0;
-	}
-	
-	IplImage *image = loadPixels(pixels, width, height);
-	env->ReleaseIntArrayElements(array_data, pixels, 0);
-	if(image == 0) {
-		LOGE("Error loading pixel array.");
-		return 0;
-	}
-	
-	return image;
-}
-
 // Set the source image and return true if successful or false otherwise.
 JNIEXPORT
 jboolean
 JNICALL
-Java_org_siprop_opencv_OpenCV_setSourceImage(JNIEnv* env,
+Java_edu_ucla_cens_andwellness3_jni_OpenCV_setSourceImage(JNIEnv* env,
 											 jobject thiz,
 											 jintArray photo_data,
 											 jint width,
@@ -268,7 +452,7 @@ Java_org_siprop_opencv_OpenCV_setSourceImage(JNIEnv* env,
 JNIEXPORT
 jbooleanArray
 JNICALL
-Java_org_siprop_opencv_OpenCV_findContours(JNIEnv* env,
+Java_edu_ucla_cens_andwellness3_jni_OpenCV_findContours(JNIEnv* env,
 										jobject thiz,
 										jint width,
 										jint height) {
@@ -355,12 +539,12 @@ Java_org_siprop_opencv_OpenCV_findContours(JNIEnv* env,
 JNIEXPORT
 jboolean
 JNICALL
-Java_org_siprop_opencv_OpenCV_initFaceDetection(JNIEnv* env,
+Java_edu_ucla_cens_andwellness3_jni_OpenCV_initFaceDetection(JNIEnv* env,
 												jobject thiz,
 												jstring cascade_path_str) {
 	
 	// First call release to ensure the memory is empty.
-	Java_org_siprop_opencv_OpenCV_releaseFaceDetection(env, thiz);
+	Java_edu_ucla_cens_andwellness3_jni_OpenCV_releaseFaceDetection(env, thiz);
 												
 	char buffer[100];
 	clock_t total_time_start = clock();
@@ -394,7 +578,7 @@ Java_org_siprop_opencv_OpenCV_initFaceDetection(JNIEnv* env,
 JNIEXPORT
 void
 JNICALL
-Java_org_siprop_opencv_OpenCV_releaseFaceDetection(JNIEnv* env,
+Java_edu_ucla_cens_andwellness3_jni_OpenCV_releaseFaceDetection(JNIEnv* env,
 												   jobject thiz) {
 											
 	m_facesFound = 0;
@@ -514,7 +698,7 @@ jobjectArray seqRectsToAndroidRects(JNIEnv* env, CvSeq *rects) {
 JNIEXPORT
 jobjectArray
 JNICALL
-Java_org_siprop_opencv_OpenCV_findAllFaces(JNIEnv* env,
+Java_edu_ucla_cens_andwellness3_jni_OpenCV_findAllFaces(JNIEnv* env,
 									       jobject thiz) {
 	char buffer[100];
 	clock_t total_time_start = clock();
@@ -613,7 +797,7 @@ jobject rectToAndroidRect(JNIEnv* env, CvRect *rect) {
 JNIEXPORT
 jobject
 JNICALL
-Java_org_siprop_opencv_OpenCV_findSingleFace(JNIEnv* env,
+Java_edu_ucla_cens_andwellness3_jni_OpenCV_findSingleFace(JNIEnv* env,
 											 jobject thiz) {
 	char buffer[100];
 	clock_t total_time_start = clock();
@@ -704,7 +888,7 @@ bool highlightFaces(IplImage *sourceImage, CvSeq *faces, double scale = 1.0) {
 JNIEXPORT
 jboolean
 JNICALL
-Java_org_siprop_opencv_OpenCV_highlightFaces(JNIEnv* env,
+Java_edu_ucla_cens_andwellness3_jni_OpenCV_highlightFaces(JNIEnv* env,
 									    	 jobject thiz) {
 	if (m_facesFound == 0 || m_facesFound->total <= 0) {
 		LOGV("No faces found to highlight!");
@@ -721,7 +905,7 @@ Java_org_siprop_opencv_OpenCV_highlightFaces(JNIEnv* env,
 JNIEXPORT
 jbooleanArray
 JNICALL
-Java_org_siprop_opencv_OpenCV_faceDetect(JNIEnv* env,
+Java_edu_ucla_cens_andwellness3_jni_OpenCV_faceDetect(JNIEnv* env,
 										jobject thiz,
 										jintArray photo_data1,
 										jintArray photo_data2,
