@@ -335,14 +335,17 @@ Java_org_siprop_opencv_OpenCV_saveImageCv(JNIEnv* env,
 JNIEXPORT
 jboolean
 JNICALL
-Java_org_siprop_opencv_OpenCV_testString(JNIEnv* env,
+Java_org_siprop_opencv_OpenCV_findLines(JNIEnv* env,
 							jobject thiz,
 							jintArray photo_data,
 							jint width,
 							jint height)
 {
 	IplImage *sourceImage,
-	*grayImage;
+	*grayImage,
+	*gaussianSmoothedImage,
+	*cannyEdgeImage;
+
 	LOGE("param width = %d, height = %d",width,height);
 	//Takes the int array and creates an IPlImage from the int array
 	sourceImage = getIplImageFromIntArray(env, photo_data, width, height);
@@ -352,16 +355,29 @@ Java_org_siprop_opencv_OpenCV_testString(JNIEnv* env,
 	}
 	//Creates a grayscale version of the image
 	grayImage = cvCreateImage(cvGetSize(sourceImage), IPL_DEPTH_8U, 1);
+	gaussianSmoothedImage = cvCreateImage(cvGetSize(sourceImage), IPL_DEPTH_8U, 1);
+	cannyEdgeImage = cvCreateImage(cvGetSize(sourceImage), IPL_DEPTH_8U, 1);
+
 	cvCvtColor( sourceImage, grayImage, CV_BGR2GRAY );
+
+	cvSmooth( grayImage, gaussianSmoothedImage, CV_GAUSSIAN, 3, 3);
+
+	cvCanny( gaussianSmoothedImage, cannyEdgeImage, 255, 1);
 	LOGE("Test 1");
-	cvSaveImage("/sdcard/out2.jpg",sourceImage);
+	cvSaveImage("/sdcard/out2.jpg", sourceImage);
 	LOGE("Test 2");
-	cvSaveImage("/sdcard/out2Gray.jpg",grayImage);
+	cvSaveImage("/sdcard/out2Gray.jpg", grayImage);
 	LOGE("TEST 3");
+	cvSaveImage("/sdcard/out2GaussianSmoothed.jpg", gaussianSmoothedImage);
+	LOGE("TEST 4");
+	cvSaveImage("/sdcard/out2Edge.jpg", cannyEdgeImage);
+	LOGE("TEST 5");
 
 	//Deletes the images
 	cvReleaseImage( &grayImage );
 	cvReleaseImage( &sourceImage );
+	cvReleaseImage( &gaussianSmoothedImage );
+	cvReleaseImage( &cannyEdgeImage );
 
 	return true;
 }

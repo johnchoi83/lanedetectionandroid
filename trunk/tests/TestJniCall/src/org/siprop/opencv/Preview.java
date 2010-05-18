@@ -6,7 +6,6 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.hardware.Camera.PreviewCallback;
 import android.util.Log;
@@ -92,73 +91,30 @@ class Preview extends SurfaceView implements SurfaceHolder.Callback {
 
 			camera.setPreviewCallback(new PreviewCallback() 
 			{ 
-	            public void onPreviewFrame(byte[] _data, Camera _camera) {   // TODO Do something with the preview image.  
-	           /* 	 Log.i("bitmap1",_data.length+"");
-	            	int abc[]=decodeYUV420SP(_data,_camera.getParameters().getPreviewSize().width,_camera.getParameters().getPreviewSize().height);
+				//JERRID: Cannot use this until you figure out how to set camera resolution size
+	            public void onPreviewFrame(byte[] _data, Camera _camera) {  
+	    			/*if(_data == null)
+	    				Log.e(TAG, "onPictureTaken - jpeg is null");
+	    			else
+	    				Log.e(TAG, "onPictureTaken - jpeg is not null");
+	    			
+	                int width = _camera.getParameters().getPictureSize().width,
+	                height = _camera.getParameters().getPictureSize().height;	                
+
+	                Log.e(TAG, ""+width + " "+height);  
+	                
+	            	int abc[]=decodeYUV420SP(_data,width,height);
 	            	OpenCV opencv = new OpenCV();
-	            	if(opencv.testString(abc,_camera.getParameters().getPreviewSize().width,_camera.getParameters().getPreviewSize().height))
+	            	
+	            	if(opencv.testString(abc,_camera.getParameters().getPictureSize().width,_camera.getParameters().getPictureSize().height))
 	            		Log.e(TAG, "TRUE");
 	            	else
 	            		Log.e(TAG, "FALSAE");*/
 	            }
-	            
-	            public int[] decodeYUV420SP( byte[] yuv420sp, int width, int height) {
-	            	final int frameSize = width * height;
-
-	            	int rgb[]=new int[width*height];
-	            	for (int j = 0, yp = 0; j < height; j++) {
-	            		int uvp = frameSize + (j >> 1) * width, u = 0, v = 0;
-	            		for (int i = 0; i < width; i++, yp++) {
-	            			int y = (0xff & ((int) yuv420sp[yp])) - 16;
-	            			if (y < 0) y = 0;
-	            			if ((i & 1) == 0) {
-	            				v = (0xff & yuv420sp[uvp++]) - 128;
-	            				u = (0xff & yuv420sp[uvp++]) - 128;
-	            			}
-
-	            			int y1192 = 1192 * y;
-	            			int r = (y1192 + 1634 * v);
-	            			int g = (y1192 - 833 * v - 400 * u);
-	            			int b = (y1192 + 2066 * u);
-
-	            			if (r < 0) r = 0; else if (r > 262143) r = 262143;
-	            			if (g < 0) g = 0; else if (g > 262143) g = 262143;
-	            			if (b < 0) b = 0; else if (b > 262143) b = 262143;
-
-	            			rgb[yp] = 0xff000000 | ((r << 6) & 0xff0000) | ((g >> 2) & 
-	            					0xff00) | ((b >> 10) & 0xff);
-
-
-	            		}
-	            	}
-	            	return rgb;
-	            }
 	      });
 			    
 
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
+		
 				/*
 				public void onPreviewFrame(byte[] data, Camera arg1) {
 					Size size = arg1.getParameters().getPreviewSize();
@@ -213,8 +169,8 @@ class Preview extends SurfaceView implements SurfaceHolder.Callback {
 		Camera.Parameters parameters = camera.getParameters();
 		//parameters.setPreviewSize(320, 240);
         //parameters.setPictureSize(320, 240);
-        parameters.setPictureFormat(PixelFormat.RGB_565);
-		camera.setParameters(parameters);
+        //parameters.setPictureFormat(PixelFormat.RGB_565);
+		//camera.setParameters(parameters);
 		
 		camera.startPreview();
 	}

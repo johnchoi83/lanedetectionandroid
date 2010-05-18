@@ -26,8 +26,10 @@ public class OpenCV {
         System.loadLibrary("opencv");
     }
    
-    public native boolean testString(byte[] data,int width,int height);
+    public native boolean findLines(int[] data,int width,int height);
  
+    public native boolean saveImageCv(String dataPath, int width, int height);
+    
     public native byte[] findContours(int[] data, int w, int h);
  
     public native boolean createSocketCapture(String address, String port, int width, int height);
