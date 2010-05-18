@@ -346,6 +346,12 @@ Java_org_siprop_opencv_OpenCV_findLines(JNIEnv* env,
 	*gaussianSmoothedImage,
 	*cannyEdgeImage;
 
+	CvSeq* lines = 0;
+
+	CvMemStorage* storage = cvCreateMemStorage(0);
+
+	int i;
+
 	LOGE("param width = %d, height = %d",width,height);
 	//Takes the int array and creates an IPlImage from the int array
 	sourceImage = getIplImageFromIntArray(env, photo_data, width, height);
@@ -362,7 +368,43 @@ Java_org_siprop_opencv_OpenCV_findLines(JNIEnv* env,
 
 	cvSmooth( grayImage, gaussianSmoothedImage, CV_GAUSSIAN, 3, 3);
 
-	cvCanny( gaussianSmoothedImage, cannyEdgeImage, 255, 1);
+	cvCanny( gaussianSmoothedImage, cannyEdgeImage, 50, 200, 3);
+
+#if 0
+        lines = cvHoughLines2( cannyEdgeImage, storage, CV_HOUGH_STANDARD, 1, CV_PI/180, 100, 0, 0 );
+
+		LOGE("Total Lines = %d", lines->total);
+
+        for( i = 0; i < MIN(lines->total,100); i++ )
+        {
+            float* line = (float*)cvGetSeqElem(lines,i);
+            float rho = line[0];
+            float theta = line[1];
+            CvPoint pt1, pt2;
+            double a = cos(theta), b = sin(theta);
+            double x0 = a*rho, y0 = b*rho;
+            pt1.x = cvRound(x0 + 1000*(-b));
+            pt1.y = cvRound(y0 + 1000*(a));
+            pt2.x = cvRound(x0 - 1000*(-b));
+            pt2.y = cvRound(y0 - 1000*(a));
+            cvLine( cannyEdgeImage, pt1, pt2, CV_RGB(255,0,0), 3, 8 );
+        }
+#else
+        lines = cvHoughLines2( cannyEdgeImage, storage, CV_HOUGH_PROBABILISTIC, 1, CV_PI/180, 30, 30, 10 );
+
+		LOGE("Total Lines PROB = %d", lines->total);
+
+        for( i = 0; i < lines->total; i++ )
+        {
+            CvPoint* line = (CvPoint*)cvGetSeqElem(lines,i);
+
+			LOGE("Point 1 x= %d y = %d", line[0].x, line[0].y);
+			LOGE("Point 2 x= %d y = %d", line[1].x, line[1].y);
+
+            cvLine( sourceImage, line[0], line[1], CV_RGB(255,0,0), 1, CV_AA );
+        }
+#endif
+
 	LOGE("Test 1");
 	cvSaveImage("/sdcard/out2.jpg", sourceImage);
 	LOGE("Test 2");
