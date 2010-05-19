@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Copy 1 elements(s) to &apos;TestJniCall/src/org.siprop.opencv&apos;&#x0D;&#x0A;- Original project: &apos;OpenCVSample&apos;&#x0D;&#x0A;- Destination element: &apos;TestJniCall/src/org.siprop.opencv&apos;&#x0D;&#x0A;- Original element: &apos;org.siprop.opencv.OpenCV.java&apos;" description="Copy compilation unit" destination="=TestJniCall/src&lt;org.siprop.opencv" element1="/src&lt;org.siprop.opencv{OpenCV.java" files="0" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1272572983034" units="1" version="1.0"/>
+</session>
