@@ -38,10 +38,11 @@ public class TestJniCall extends Activity {
 		       int minutes = seconds / 60;
 		       seconds     = seconds % 60;
 		       
-		       
-		       preview.camera.takePicture(shutterCallback, rawCallback,jpegCallback);
+		       if(preview.camera != null) {
+		    	   preview.camera.takePicture(shutterCallback, rawCallback,jpegCallback);
 		     
-		       mHandler.postDelayed(this, 20 * 1000);
+		    	   mHandler.postDelayed(this, 20 * 1000);
+		       }
 		   }
 		};
 
@@ -106,19 +107,28 @@ public class TestJniCall extends Activity {
 	PictureCallback jpegCallback = new PictureCallback() {
 		public void onPictureTaken(byte[] data, Camera camera) {
 			Log.e(TAG, "onPictureTaken - jpeg");
-            OpenCV opencv = new OpenCV();
-			if(data == null)
+            OpenCV opencv = new OpenCV();        
+            if(data == null)
 				Log.e(TAG, "onPictureTaken - jpeg is null");
 			else
 				Log.e(TAG, "onPictureTaken - jpeg is not null");
-			
-			//Create a Bitmap out of the data
-			Bitmap faceDetectBitmap =  BitmapFactory.decodeByteArray(data, 0, data.length);
+            /*
+            Bitmap faceDetectBitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
             int width = faceDetectBitmap.getWidth(),
             height = faceDetectBitmap.getHeight();
+            */
             
+            //Load Static Image file from Android Camera
+            Bitmap faceDetectBitmap = BitmapFactory.decodeFile("/sdcard/roadTest.jpg");
+            int width = faceDetectBitmap.getWidth(),
+            height = faceDetectBitmap.getHeight(); 
+            
+			if(data == null){
+				Log.e(TAG, "testFile - null bitmap");
+			}
+			
             //Scale the bitmap down by 1/5 because the camera kept running out of memory when we allocated the int array below
-			faceDetectBitmap = Bitmap.createScaledBitmap(faceDetectBitmap, width/5, height/5, false);
+			faceDetectBitmap = Bitmap.createScaledBitmap(faceDetectBitmap, width/2, height/2, false);
 			if(faceDetectBitmap == null){
 				Log.e(TAG, "onPictureTaken - null bitmap");
 	            
