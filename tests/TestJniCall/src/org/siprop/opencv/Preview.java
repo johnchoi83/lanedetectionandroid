@@ -26,7 +26,6 @@ class Preview extends SurfaceView implements SurfaceHolder.Callback {
 		mHolder = getHolder();
 		mHolder.addCallback(this);
 		mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-	    //mHolder.setFixedSize(320, 240);
 	}
 
 	static public void toRGB565(byte[] yuvs, int width, int height, byte[] rgbs) {
@@ -167,7 +166,7 @@ class Preview extends SurfaceView implements SurfaceHolder.Callback {
 		// Now that the size is known, set up the camera parameters and begin
 		// the preview.
 		Camera.Parameters parameters = camera.getParameters();
-		//parameters.setPreviewSize(320, 240);
+		parameters.setPreviewSize(204, 153);
         //parameters.setPictureSize(320, 240);
         //parameters.setPictureFormat(PixelFormat.RGB_565);
 		//camera.setParameters(parameters);

@@ -347,8 +347,10 @@ Java_org_siprop_opencv_OpenCV_findLines(JNIEnv* env,
 	*cannyEdgeImage;
 
 	CvSeq* lines = 0;
+	CvSeq* lanes = 0;
 
 	CvMemStorage* storage = cvCreateMemStorage(0);
+	CvMemStorage* laneStorage = cvCreateMemStorage(0);
 
 	int i;
 
@@ -390,20 +392,33 @@ Java_org_siprop_opencv_OpenCV_findLines(JNIEnv* env,
             cvLine( cannyEdgeImage, pt1, pt2, CV_RGB(255,0,0), 3, 8 );
         }
 #else
-        lines = cvHoughLines2( cannyEdgeImage, storage, CV_HOUGH_PROBABILISTIC, 1, CV_PI/180, 30, 30, 10 );
+        lines = cvHoughLines2( cannyEdgeImage, storage, CV_HOUGH_PROBABILISTIC, 1, CV_PI/180, 50, 20, 30 );
 
 		LOGE("Total Lines PROB = %d", lines->total);
-
+/*
         for( i = 0; i < lines->total; i++ )
         {
             CvPoint* line = (CvPoint*)cvGetSeqElem(lines,i);
+
+			//LOGE("Point 1 x= %d y = %d", line[0].x, line[0].y);
+			//LOGE("Point 2 x= %d y = %d", line[1].x, line[1].y);
+
+            //cvLine( sourceImage, line[0], line[1], CV_RGB(255,0,0), 1, CV_AA );
+        } */
+
+		lanes = cvCloneSeq( lines, laneStorage );
+
+		for( i = 0; i < lanes->total; i++ )
+		{
+			CvPoint* line = (CvPoint*)cvGetSeqElem(lanes,i);
 
 			LOGE("Point 1 x= %d y = %d", line[0].x, line[0].y);
 			LOGE("Point 2 x= %d y = %d", line[1].x, line[1].y);
 
             cvLine( sourceImage, line[0], line[1], CV_RGB(255,0,0), 1, CV_AA );
-        }
+		}
 #endif
+
 
 	LOGE("Test 1");
 	cvSaveImage("/sdcard/out2.jpg", sourceImage);
@@ -420,6 +435,9 @@ Java_org_siprop_opencv_OpenCV_findLines(JNIEnv* env,
 	cvReleaseImage( &sourceImage );
 	cvReleaseImage( &gaussianSmoothedImage );
 	cvReleaseImage( &cannyEdgeImage );
+
+	cvReleaseMemStorage( &laneStorage );
+	cvReleaseMemStorage( &storage );
 
 	return true;
 }
